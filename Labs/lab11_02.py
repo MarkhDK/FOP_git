@@ -1,29 +1,39 @@
 def display_feed(posts):
-    pass
+    for id, post in posts.items():
+        print(
+            f"""
+        ID: {id}
+        {post['text']}
+        """
+        )
+        for hashtag in post["hashtags"]:
+            print(f"{hashtag}")
 
 
-def create_post(posts, text):
+def create_post(posts: dict, text):
     id = len(posts)
     hashtags = get_hashtags(text)
 
     posts[id] = {"text": text, "hashtags": hashtags}
+    return posts
 
 
 def get_hashtags(text):
     words = split_words(text)
     hashtags = extract_hashtags(words)
     unique_hashtags = get_unique_hashtags(hashtags)
+    return unique_hashtags
 
 
 def split_words(text):
     word = ""
     words = []
-    for i in range(len(text) - 1):
+    for i in range(len(text)):
         if text[i] != " ":
             word = word + text[i]
 
         if text[i] == " " or i == len(text) - 1:
-            if text[i] != "":
+            if word != "":
                 words.append(word)
                 word = ""
     return words
@@ -31,28 +41,43 @@ def split_words(text):
 
 def extract_hashtags(words):
     hashtags = []
-    for i in range(len(words) - 1):
-        if words[i][0] == "#":
-            hashtags.append(words[i])
+
+    for i in range(len(words)):
+        match_found = False
+
+        if words[i][0] == "#" and len(words[i]) > 1:
+            for j in range(1, len(words[i])):
+                if words[i][j] == "#":
+                    match_found = True
+
+            if not match_found:
+                hashtags.append(words[i])
     return hashtags
 
 
 def get_unique_hashtags(hashtags):
     unique_hashtags = []
+
     for i in range(len(hashtags)):
         match_found = False
+
         for j in range(len(unique_hashtags)):
             if hashtags[i] == unique_hashtags[j]:
                 match_found = True
+
         if match_found != True:
             unique_hashtags.append(hashtags[i])
+
+    return unique_hashtags
 
 
 def main():
     user_input = ""
     posts = {}
     while user_input != "exit":
-        display_feed(posts)
+        print(posts)
+        if posts:
+            display_feed(posts)
         user_input = input("Write a new tweet!\n")
         if user_input != "exit":
             posts = create_post(posts, user_input)
